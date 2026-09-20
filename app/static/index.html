@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQLPilot — AI SQL Assistant</title>
+    <!-- Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="app-layout">
+        <!-- 56px Compact Enterprise Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <div class="brand-logo">
+                    <div class="brand-icon">
+                        <i class="fa-solid fa-terminal"></i>
+                    </div>
+                    <div class="brand-titles">
+                        <span class="brand-name">SQLPilot</span>
+                        <span class="brand-sub">AI SQL Assistant</span>
+                    </div>
+                </div>
+
+                <div class="header-divider"></div>
+
+                <!-- Workspace Selector -->
+                <div class="workspace-selector" id="workspace-dropdown">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <span class="workspace-name">Production Analytics</span>
+                    <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
+                </div>
+            </div>
+
+            <div class="header-right">
+                <div class="db-indicator">
+                    <span class="status-dot online"></span>
+                    <span class="db-status">Connected</span>
+                    <span class="db-engine">PostgreSQL 16</span>
+                </div>
+
+                <div class="header-divider"></div>
+
+                <button class="header-btn" id="btn-header-settings" title="Settings">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
+
+                <div class="user-avatar" title="Senior Engineer">
+                    <span>SE</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Two-Column Body -->
+        <div class="app-body">
+            <!-- 240px Left Sidebar -->
+            <aside class="app-sidebar" id="sidebar">
+                <div class="sidebar-action-container">
+                    <button class="btn btn-sidebar-primary" id="btn-new-query">
+                        <i class="fa-solid fa-plus"></i> New Query
+                    </button>
+                </div>
+
+                <nav class="sidebar-nav">
+                    <!-- Workspace Section -->
+                    <div class="nav-group">
+                        <div class="nav-group-header">WORKSPACE</div>
+                        <ul class="nav-list" id="recent-queries-list">
+                            <li class="nav-item active" data-q="Show me users who registered this month">
+                                <i class="fa-regular fa-file-code"></i>
+                                <span class="nav-text">Users registered this month</span>
+                            </li>
+                            <li class="nav-item" data-q="Find total revenue generated from completed orders">
+                                <i class="fa-regular fa-file-code"></i>
+                                <span class="nav-text">Revenue by month</span>
+                            </li>
+                            <li class="nav-item" data-q="Find the user who spent the most money overall">
+                                <i class="fa-regular fa-file-code"></i>
+                                <span class="nav-text">Highest spending customers</span>
+                            </li>
+                            <li class="nav-item" data-q="Show orders with pending payment status along with user names">
+                                <i class="fa-regular fa-file-code"></i>
+                                <span class="nav-text">Pending orders</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Database Schema Section -->
+                    <div class="nav-group">
+                        <div class="nav-group-header">DATABASE SCHEMA</div>
+                        <div class="schema-tree" id="sidebar-schema-tree">
+                            <div class="schema-node schema-root">
+                                <i class="fa-solid fa-database"></i>
+                                <span>public</span>
+                            </div>
+                            <ul class="tree-list">
+                                <li class="tree-item table-node" data-table="users">
+                                    <div class="table-title">
+                                        <i class="fa-solid fa-table"></i>
+                                        <span>users</span>
+                                        <i class="fa-solid fa-chevron-right toggle-icon"></i>
+                                    </div>
+                                    <ul class="column-list hidden">
+                                        <li><span class="col-name">id</span> <span class="col-type">INTEGER</span> <span class="pk-badge">PK</span></li>
+                                        <li><span class="col-name">name</span> <span class="col-type">VARCHAR</span></li>
+                                        <li><span class="col-name">email</span> <span class="col-type">VARCHAR</span></li>
+                                        <li><span class="col-name">role</span> <span class="col-type">VARCHAR</span></li>
+                                        <li><span class="col-name">created_at</span> <span class="col-type">TIMESTAMP</span></li>
+                                    </ul>
+                                </li>
+                                <li class="tree-item table-node" data-table="orders">
+                                    <div class="table-title">
+                                        <i class="fa-solid fa-table"></i>
+                                        <span>orders</span>
+                                        <i class="fa-solid fa-chevron-right toggle-icon"></i>
+                                    </div>
+                                    <ul class="column-list hidden">
+                                        <li><span class="col-name">id</span> <span class="col-type">INTEGER</span> <span class="pk-badge">PK</span></li>
+                                        <li><span class="col-name">user_id</span> <span class="col-type">INTEGER</span> <span class="fk-badge">FK</span></li>
+                                        <li><span class="col-name">total_amount</span> <span class="col-type">NUMERIC</span></li>
+                                        <li><span class="col-name">status</span> <span class="col-type">VARCHAR</span></li>
+                                        <li><span class="col-name">created_at</span> <span class="col-type">TIMESTAMP</span></li>
+                                    </ul>
+                                </li>
+                                <li class="tree-item table-node" data-table="products">
+                                    <div class="table-title">
+                                        <i class="fa-solid fa-table"></i>
+                                        <span>products</span>
+                                        <i class="fa-solid fa-chevron-right toggle-icon"></i>
+                                    </div>
+                                    <ul class="column-list hidden">
+                                        <li><span class="col-name">id</span> <span class="col-type">INTEGER</span> <span class="pk-badge">PK</span></li>
+                                        <li><span class="col-name">title</span> <span class="col-type">VARCHAR</span></li>
+                                        <li><span class="col-name">category</span> <span class="col-type">VARCHAR</span></li>
+                                        <li><span class="col-name">price</span> <span class="col-type">NUMERIC</span></li>
+                                        <li><span class="col-name">stock</span> <span class="col-type">INTEGER</span></li>
+                                    </ul>
+                                </li>
+                                <li class="tree-item table-node" data-table="payments">
+                                    <div class="table-title">
+                                        <i class="fa-solid fa-table"></i>
+                                        <span>payments</span>
+                                        <i class="fa-solid fa-chevron-right toggle-icon"></i>
+                                    </div>
+                                    <ul class="column-list hidden">
+                                        <li><span class="col-name">id</span> <span class="col-type">INTEGER</span> <span class="pk-badge">PK</span></li>
+                                        <li><span class="col-name">order_id</span> <span class="col-type">INTEGER</span> <span class="fk-badge">FK</span></li>
+                                        <li><span class="col-name">payment_method</span> <span class="col-type">VARCHAR</span></li>
+                                        <li><span class="col-name">amount</span> <span class="col-type">NUMERIC</span></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Settings Section -->
+                    <div class="nav-group">
+                        <div class="nav-group-header">SETTINGS</div>
+                        <ul class="nav-list">
+                            <li class="nav-item">
+                                <i class="fa-solid fa-network-wired"></i>
+                                <span class="nav-text">Connection</span>
+                            </li>
+                            <li class="nav-item">
+                                <i class="fa-solid fa-clock-rotate-left"></i>
+                                <span class="nav-text">Query History</span>
+                            </li>
+                            <li class="nav-item">
+                                <i class="fa-solid fa-shield-halved"></i>
+                                <span class="nav-text">Security Guards</span>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+            </aside>
+
+            <!-- Main Enterprise Content Area -->
+            <main class="main-viewport">
+                <div class="viewport-header">
+                    <div class="breadcrumb">
+                        <span>Workspace</span>
+                        <i class="fa-solid fa-chevron-right"></i>
+                        <span class="active">SQL Assistant</span>
+                    </div>
+
+                    <div class="title-bar">
+                        <h2>AI SQL Assistant</h2>
+                        <p class="subtitle">Ask questions about your PostgreSQL data using natural language.</p>
+                    </div>
+                </div>
+
+                <!-- Query IDE Input Editor -->
+                <section class="ide-panel">
+                    <div class="ide-header">
+                        <div class="ide-title">
+                            <i class="fa-solid fa-terminal"></i>
+                            <span>Natural language query</span>
+                        </div>
+                        <div class="ide-meta">
+                            <div class="meta-item">
+                                <span class="meta-label">Database:</span>
+                                <span class="meta-val">PostgreSQL</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Schema:</span>
+                                <span class="meta-val">public</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ide-body">
+                        <textarea id="question-input" rows="3" placeholder="e.g. Show me users who registered this month"></textarea>
+                    </div>
+
+                    <div class="ide-footer">
+                        <div class="example-prompts">
+                            <span class="example-label">Examples:</span>
+                            <button class="btn-text-example" data-q="Find the user who spent the most money overall">"Which customers spent the most this month?"</button>
+                            <button class="btn-text-example" data-q="Find total revenue generated from completed orders">"Show revenue by month"</button>
+                            <button class="btn-text-example" data-q="Show me users who registered this month">"Users registered this month"</button>
+                        </div>
+
+                        <div class="ide-actions">
+                            <button id="btn-clear" class="btn btn-secondary">Clear</button>
+                            <button id="btn-ask" class="btn btn-primary">
+                                <i class="fa-solid fa-bolt"></i> Generate SQL
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Professional Loading State -->
+                <div class="progress-panel hidden" id="loader">
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill"></div>
+                    </div>
+                    <div class="progress-status-text">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i>
+                        <span id="progress-step-text">Generating SQL... Analyzing database schema</span>
+                    </div>
+                    <div class="progress-steps">
+                        <span class="step-tag active"><i class="fa-solid fa-check"></i> Schema Inspect</span>
+                        <span class="step-tag active"><i class="fa-solid fa-circle-notch fa-spin"></i> Generate Query</span>
+                        <span class="step-tag"><i class="fa-regular fa-circle"></i> AST Security Validation</span>
+                    </div>
+                </div>
+
+                <!-- Red Security Block / Error Banner -->
+                <div class="security-alert-panel hidden" id="error-banner">
+                    <div class="security-alert-header">
+                        <div class="alert-icon"><i class="fa-solid fa-shield-virus"></i></div>
+                        <div>
+                            <h3 id="error-title">BLOCKED QUERY</h3>
+                            <p class="alert-sub">This operation is not permitted. Only read-only SELECT queries can be executed.</p>
+                        </div>
+                    </div>
+                    <div class="security-alert-body" id="error-message"></div>
+                </div>
+
+                <!-- Query Security & Status Bar -->
+                <div class="query-security-bar hidden" id="security-bar">
+                    <div class="security-badge-group">
+                        <span class="sec-badge ok"><i class="fa-solid fa-check"></i> Read-only</span>
+                        <span class="sec-badge ok"><i class="fa-solid fa-check"></i> SQL Validated</span>
+                        <span class="sec-badge ok"><i class="fa-solid fa-check"></i> Allowed tables</span>
+                        <span class="sec-badge info"><i class="fa-solid fa-stopwatch"></i> Query timeout: 5s</span>
+                    </div>
+                </div>
+
+                <!-- Generated Results Workspace -->
+                <div class="results-workspace hidden" id="results-section">
+                    <!-- SQL Code Editor Output -->
+                    <div class="panel sql-editor-panel">
+                        <div class="panel-header">
+                            <div class="panel-title">
+                                <i class="fa-solid fa-code"></i>
+                                <span>Generated SQL</span>
+                            </div>
+                            <div class="panel-actions">
+                                <button class="btn btn-sm btn-icon-text" id="btn-copy-sql">
+                                    <i class="fa-regular fa-copy"></i> Copy
+                                </button>
+                                <button class="btn btn-sm btn-icon-text" id="btn-edit-sql">
+                                    <i class="fa-solid fa-pen-to-square"></i> Edit
+                                </button>
+                                <button class="btn btn-sm btn-primary-sm" id="btn-run-sql">
+                                    <i class="fa-solid fa-play"></i> Run Query
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="code-viewport">
+                            <pre><code id="sql-code" class="language-sql"></code></pre>
+                        </div>
+
+                        <div class="sql-meta-bar">
+                            <span class="meta-tag ok"><i class="fa-solid fa-circle-check"></i> Query validated</span>
+                            <span class="meta-tag neutral">Read-only query</span>
+                            <span class="meta-tag neutral" id="stat-time-meta">Execution time: 0 ms</span>
+                        </div>
+                    </div>
+
+                    <!-- Collapsible Explanation Panel -->
+                    <div class="panel explanation-panel">
+                        <div class="panel-header" id="toggle-explanation">
+                            <div class="panel-title">
+                                <i class="fa-regular fa-compass"></i>
+                                <span>Query Explanation</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                        </div>
+                        <div class="panel-body accordion-content">
+                            <p id="explanation-text" class="explanation-desc"></p>
+                            <div class="schema-usage-grid">
+                                <div class="usage-block">
+                                    <span class="usage-title">Tables used:</span>
+                                    <div class="tag-list" id="tables-used-tags"></div>
+                                </div>
+                                <div class="usage-block">
+                                    <span class="usage-title">Columns returned:</span>
+                                    <div class="tag-list" id="columns-returned-tags"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data Grid Results Panel -->
+                    <div class="panel datagrid-panel">
+                        <div class="panel-header">
+                            <div class="panel-title">
+                                <i class="fa-solid fa-table-cells"></i>
+                                <span>Query Results</span>
+                            </div>
+
+                            <div class="datagrid-controls">
+                                <div class="search-input-wrapper">
+                                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                                    <input type="text" id="grid-search-input" placeholder="Filter rows...">
+                                </div>
+                                <span class="badge-stat" id="stat-rows">0 rows</span>
+                                <span class="badge-stat" id="stat-time">0 ms</span>
+                                <button class="btn btn-sm btn-secondary" id="btn-export-csv" title="Export to CSV">
+                                    <i class="fa-solid fa-download"></i> Export CSV
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="table-viewport">
+                            <table class="enterprise-grid" id="results-table">
+                                <thead id="table-head"></thead>
+                                <tbody id="table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Toast Notification Container -->
+                <div class="toast-notification hidden" id="toast-container">
+                    <i class="fa-solid fa-circle-check toast-icon"></i>
+                    <span id="toast-message">SQL copied to clipboard</span>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
