@@ -299,6 +299,3 @@ tests/test_validator.py .......                         [100%]
 
 ---
 
-## 📄 License
-
-MIT License. Designed for AI Backend Engineering portfolios.
